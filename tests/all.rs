@@ -131,7 +131,7 @@ fn smoke_promise() {
     Task::new().run(p.then(move |_| {
         tx.send(()).unwrap();
         Ok(())
-    }).boxed());
+    }).boxed_send());
     rx.recv().unwrap();
 }
 
@@ -191,7 +191,7 @@ fn join_cancels() {
     Task::new().run(f.then(move |_| {
         tx.send(()).unwrap();
         Ok(())
-    }).boxed());
+    }).boxed_send());
     assert!(rx.try_recv().is_err());
     drop(a);
     rx.recv().unwrap();

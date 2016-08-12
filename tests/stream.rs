@@ -216,8 +216,8 @@ fn buffered() {
     let (a, b) = promise::<u32>();
     let (c, d) = promise::<u32>();
 
-    tx.send(Ok(b.map_err(|_| 2).boxed()))
-      .and_then(|tx| tx.send(Ok(d.map_err(|_| 4).boxed())))
+    tx.send(Ok(b.map_err(|_| 2).boxed_send()))
+      .and_then(|tx| tx.send(Ok(d.map_err(|_| 4).boxed_send())))
       .forget();
 
     let mut rx = rx.buffered(2);
@@ -233,8 +233,8 @@ fn buffered() {
     let (a, b) = promise::<u32>();
     let (c, d) = promise::<u32>();
 
-    tx.send(Ok(b.map_err(|_| 2).boxed()))
-      .and_then(|tx| tx.send(Ok(d.map_err(|_| 4).boxed())))
+    tx.send(Ok(b.map_err(|_| 2).boxed_send()))
+      .and_then(|tx| tx.send(Ok(d.map_err(|_| 4).boxed_send())))
       .forget();
 
     let mut rx = rx.buffered(1);

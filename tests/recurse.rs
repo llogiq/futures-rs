@@ -6,11 +6,11 @@ use futures::*;
 
 #[test]
 fn lots() {
-    fn doit(n: usize) -> Box<Future<Item=(), Error=()>> {
+    fn doit(n: usize) -> Box<Future<Item=(), Error=()> + Send> {
         if n == 0 {
-            finished(()).boxed()
+            finished(()).boxed_send()
         } else {
-            finished(n - 1).and_then(doit).boxed()
+            finished(n - 1).and_then(doit).boxed_send()
         }
     }
 
