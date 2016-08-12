@@ -115,7 +115,7 @@ impl<'a, 'b, T: Send + 'static> TaskIoTake<'a, 'b, T> {
 }
 
 impl<'a, 'b, T> TaskIoTake<'a, 'b, T>
-    where T: Stream<Item=Ready, Error=io::Error>
+    where T: Stream<Item=Ready, Error=io::Error> + Send
 {
     fn poll(&mut self, ready: Ready) -> Poll<Option<Ready>, io::Error> {
         let state = self.t.as_mut().unwrap();
@@ -186,7 +186,7 @@ impl<'a, 'b, T: Send + 'static> Drop for TaskIoTake<'a, 'b, T> {
 }
 
 impl<T> Stream for TaskIo<T>
-    where T: Stream<Item=Ready, Error=io::Error>,
+    where T: Stream<Item=Ready, Error=io::Error> + Send,
 {
     type Item = Ready;
     type Error = io::Error;
@@ -201,7 +201,7 @@ impl<T> Stream for TaskIo<T>
 }
 
 impl<T> ReadTask for TaskIo<T>
-    where T: io::Read + Stream<Item=Ready, Error=io::Error>,
+    where T: io::Read + Stream<Item=Ready, Error=io::Error> + Send,
 {
     fn read(&mut self, task: &mut Task, buf: &mut [u8]) -> io::Result<usize> {
         let mut io = TaskIoTake::new(task, &self.handle);
@@ -217,7 +217,7 @@ impl<T> ReadTask for TaskIo<T>
 }
 
 impl<T> WriteTask for TaskIo<T>
-    where T: io::Write + Stream<Item=Ready, Error=io::Error>,
+    where T: io::Write + Stream<Item=Ready, Error=io::Error> + Send,
 {
     fn write(&mut self, task: &mut Task, buf: &[u8]) -> io::Result<usize> {
         let mut io = TaskIoTake::new(task, &self.handle);
@@ -231,7 +231,7 @@ impl<T> WriteTask for TaskIo<T>
 }
 
 impl<T> Stream for TaskIoRead<T>
-    where T: Stream<Item=Ready, Error=io::Error>,
+    where T: Stream<Item=Ready, Error=io::Error> + Send,
 {
     type Item = Ready;
     type Error = io::Error;
@@ -246,7 +246,7 @@ impl<T> Stream for TaskIoRead<T>
 }
 
 impl<T> ReadTask for TaskIoRead<T>
-    where T: io::Read + Stream<Item=Ready, Error=io::Error>,
+    where T: io::Read + Stream<Item=Ready, Error=io::Error> + Send,
 {
     fn read(&mut self, task: &mut Task, buf: &mut [u8]) -> io::Result<usize> {
         let mut io = TaskIoTake::new(task, &self.handle);
@@ -262,7 +262,7 @@ impl<T> ReadTask for TaskIoRead<T>
 }
 
 impl<T> Stream for TaskIoWrite<T>
-    where T: Stream<Item=Ready, Error=io::Error>,
+    where T: Stream<Item=Ready, Error=io::Error> + Send,
 {
     type Item = Ready;
     type Error = io::Error;
@@ -277,7 +277,7 @@ impl<T> Stream for TaskIoWrite<T>
 }
 
 impl<T> WriteTask for TaskIoWrite<T>
-    where T: io::Write + Stream<Item=Ready, Error=io::Error>,
+    where T: io::Write + Stream<Item=Ready, Error=io::Error> + Send,
 {
     fn write(&mut self, task: &mut Task, buf: &[u8]) -> io::Result<usize> {
         let mut io = TaskIoTake::new(task, &self.handle);

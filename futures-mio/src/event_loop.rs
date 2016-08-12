@@ -193,10 +193,10 @@ impl Loop {
     pub fn run<F: Future>(&mut self, f: F) -> Result<F::Item, F::Error> {
         let (tx_res, rx_res) = mpsc::channel();
         let handle = self.handle();
-        f.then(move |res| {
+        self.add_loop_data(f.then(move |res| {
             handle.shutdown();
             tx_res.send(res)
-        }).forget();
+        })).forget();
 
         self._run();
 
