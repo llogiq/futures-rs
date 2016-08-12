@@ -780,6 +780,30 @@ impl<A: 'static> LoopData<A> {
     }
 }
 
+impl<A: Future> Future for LoopData<A> {
+    type Item = A::Item;
+    type Error = A::Error;
+
+    fn poll(&mut self, task: &mut Task) -> Poll<A::Item, A::Error> {
+        // If we're on the right thread, then we can proceed. Otherwise we need
+        // to go and get polled on the right thread.
+        if let Some(inner) = self.get_mut() {
+            return inner.poll(task)
+        }
+        task.poll_on(self.executor());
+        Poll::NotReady
+    }
+
+    fn schedule(&mut self, task: &mut Task) {
+        // If we're on the right thread, then we're good to go, otherwise we
+        // need to get poll'd to tell the task to move somewhere else.
+        match self.get_mut() {
+            Some(inner) => inner.schedule(task),
+            None => task.notify(),
+        }
+    }
+}
+
 impl<A: 'static> Drop for LoopData<A> {
     fn drop(&mut self) {
         // The `DropBox` we store internally will cause a memory leak if it's
